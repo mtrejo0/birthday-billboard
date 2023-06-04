@@ -74,7 +74,7 @@ const App: React.FC = () => {
             <div key={song.id} style={{ marginTop: '1rem', display: "flex", alignItems: "center" }}>
 
                 
-              <p>#{i+1} </p>
+              <p style={{marginRight: '1rem'}}>#{i+1} </p>
               
               
               <iframe
