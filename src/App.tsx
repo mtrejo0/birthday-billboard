@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const App: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingText, setLoadingText] = useState('Loading');
   const [songs, setSongs] = useState<any[]>([]);
 
   const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -14,6 +15,7 @@ const App: React.FC = () => {
     event.preventDefault();
     try {
       setLoading(true);
+      setLoadingText('Loading');
 
       const response = await axios.post(
         'https://ttjg79x010.execute-api.us-east-2.amazonaws.com/dev',
@@ -39,6 +41,21 @@ const App: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (loading) {
+      timer = setInterval(() => {
+        setLoadingText((prevText) => prevText + '.');
+      }, 1000);
+    } else {
+      setLoadingText('Loading');
+    }
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, [loading]);
+
   const handleShareTwitter = () => {
     const songsText = songs.slice(0, 4).map((song, index) => `${index + 1}. ${song.name}`).join('%0A');
     const tweetUrl = encodeURIComponent(window.location.href);
@@ -48,22 +65,31 @@ const App: React.FC = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', minHeight: "100vh", background: '#000', color: '#fff', paddingBottom: "100px" }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', minHeight: '100vh', background: '#000', color: '#fff', paddingBottom: '100px' }}>
       <h1 style={{ fontSize: '2rem', marginBottom: '1rem' }}>Discover your Birthday Billboard!</h1>
       <form onSubmit={handleSubmit} style={{ display: 'flex', marginBottom: '1rem', alignItems: 'center' }}>
-  <label htmlFor="date" style={{ marginRight: '0.5rem', color: '#fff' }}>Select a date:</label>
-  <input
-  type="date"
-  id="date"
-  value={selectedDate}
-  onChange={handleDateChange}
-  max={new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().split('T')[0]} // Set max attribute to the previous day's date
-  style={{ marginRight: '0.5rem', padding: "6px" }}
-/>
-  <button type="submit" style={{ backgroundColor: '#1da1f2', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '4px' }}>Submit</button>
-</form>
+        <label htmlFor="date" style={{ marginRight: '0.5rem', color: '#fff' }}>
+          Select a date:
+        </label>
+        <input
+          type="date"
+          id="date"
+          value={selectedDate}
+          onChange={handleDateChange}
+          max={new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().split('T')[0]} // Set max attribute to the previous day's date
+          style={{ marginRight: '0.5rem', padding: '6px' }}
+        />
+        <button type="submit" style={{ backgroundColor: '#1da1f2', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '4px' }}>
+          Submit
+        </button>
+      </form>
 
-      {loading && <div style={{ marginTop: '1rem' }}>Loading...</div>}
+      {loading && (
+        <div style={{ marginTop: '1rem' }}>
+          <p>{loadingText}</p>
+          <p>(This may take up to 30 seconds)</p>
+        </div>
+      )}
 
       {songs?.length > 0 && !loading && (
         <div>
@@ -71,20 +97,9 @@ const App: React.FC = () => {
             Share on Twitter
           </button>
           {songs.map((song, i) => (
-            <div key={song.id} style={{ marginTop: '1rem', display: "flex", alignItems: "center" }}>
-
-                
-              <p style={{marginRight: '1rem'}}>#{i+1} </p>
-              
-              
-              <iframe
-                src={`https://open.spotify.com/embed/track/${song.id}`}
-                width="100%"
-                height="80"
-                frameBorder="0"
-                allow="encrypted-media"
-                title={song.name}
-              ></iframe>
+            <div key={song.id} style={{ marginTop: '1rem', display: 'flex', alignItems: 'center' }}>
+              <p style={{ marginRight: '1rem' }}>#{i + 1} </p>
+              <iframe src={`https://open.spotify.com/embed/track/${song.id}`} width="100%" height="80" frameBorder="0" allow="encrypted-media" title={song.name}></iframe>
             </div>
           ))}
         </div>
