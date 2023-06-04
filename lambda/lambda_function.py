@@ -3,10 +3,14 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import json
 
-def get_top_songs_spotify_ids(date):
-    # Billboard chart for Hot 100 songs on the given date
-    chart = billboard.ChartData('hot-100', date=date)
+# Dictionary to store cached song information
+songCache = {}
 
+def search_song(query):
+    # Check if the song is already cached
+    if query in songCache:
+        return songCache[query]
+    
     # Spotify API client credentials
     client_id = 'TODO'
     client_secret = 'TODO'
@@ -14,29 +18,44 @@ def get_top_songs_spotify_ids(date):
     auth_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
     sp = spotipy.Spotify(auth_manager=auth_manager)
 
-    spotify_ids = []
+    # Perform the search
+    response = sp.search(q=query, type='track', limit=1)
+    
+    # Extract and cache the song information
+    if response['tracks']['items']:
+        song_info = {
+            'name': response['tracks']['items'][0]['name'],
+            'id': response['tracks']['items'][0]['id'],
+            'img': response['tracks']['items'][0]['album']['images'][0]['url']
+        }
+        songCache[query] = song_info
 
-    chart = chart[:1]
+    return song_info
+
+
+def get_top_songs(date):
+    # Billboard chart for Hot 100 songs on the given date
+    chart = billboard.ChartData('hot-100', date=date)
+
+    songs = []
+
+    chart = chart[:10]
 
     # Iterate over the top 100 songs from Billboard and search for their Spotify ID
     for song in chart:
         query = f'{song.title} {song.artist}'
-        results = sp.search(q=query, type='track', limit=1)
-        items = results['tracks']['items']
-        if items:
-            spotify_ids.append(items[0]['id'])
+        song_info = search_song(query)
+        songs.append(song_info)
 
-    return spotify_ids
+    return songs
 
 
 def lambda_handler(event, context):  
+    date = event["date"]
 
-    # Example usage
-    date = '2023-05-30'
-    spotify_ids = get_top_songs_spotify_ids(date)
-    print(spotify_ids)
+    songs = get_top_songs(date)
 
     return {
         'statusCode': 200,
-        'body': json.dumps(spotify_ids)
+        'body': songs
     }
