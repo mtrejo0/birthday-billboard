@@ -67,10 +67,8 @@ const App: React.FC = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', minHeight: '100vh', background: '#000', color: '#fff', paddingBottom: '100px' }}>
       <h1 style={{ fontSize: '2rem', marginBottom: '1rem' }}>Discover your Birthday Billboard!</h1>
+      <p>Enter your birthday:</p>
       <form onSubmit={handleSubmit} style={{ display: 'flex', marginBottom: '1rem', alignItems: 'center' }}>
-        <label htmlFor="date" style={{ marginRight: '0.5rem', color: '#fff' }}>
-          Select a date:
-        </label>
         <input
           type="date"
           id="date"
@@ -96,6 +94,7 @@ const App: React.FC = () => {
           <button style={{ marginTop: '1rem', backgroundColor: '#1da1f2', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer' }} onClick={handleShareTwitter}>
             Share on Twitter
           </button>
+          <p>Top 10 songs on your birthday:</p>
           {songs.map((song, i) => (
             <div key={song.id} style={{ marginTop: '1rem', display: 'flex', alignItems: 'center' }}>
               <p style={{ marginRight: '1rem' }}>#{i + 1} </p>
