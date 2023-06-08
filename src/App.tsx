@@ -57,9 +57,16 @@ const App: React.FC = () => {
   }, [loading]);
 
   const handleShareTwitter = () => {
-    const songsText = songs.slice(0, 4).map((song, index) => `${index + 1}. ${song.name}`).join('%0A');
+    const maxCharacters = 280; // Maximum character limit for a tweet
+    const maxSongNameLength = Math.floor((maxCharacters - 14) / 5); // Assuming each character takes 4 bytes (including special characters)
+    
+    const cappedSongsText = songs
+      .slice(0, 5)
+      .map((song, index) => `${index + 1}. ${song.name.substring(0, maxSongNameLength)}`)
+      .join('%0A');
+    
     const tweetUrl = encodeURIComponent(window.location.href);
-    const tweetText = `Check out the top 4 songs on my Birthday Billboard!%0A${songsText}%0A%0A${tweetUrl}`;
+    const tweetText = `Check out the top billboard songs on my birthday!%0A${cappedSongsText}%0A%0A${tweetUrl}`;
     const twitterUrl = `https://twitter.com/intent/tweet?text=${tweetText}`;
     window.open(twitterUrl, '_blank');
   };
