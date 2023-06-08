@@ -66,7 +66,7 @@ const App: React.FC = () => {
       .join('%0A');
     
     const tweetUrl = encodeURIComponent(window.location.href);
-    const tweetText = `Check out the top billboard songs on my birthday!%0A${cappedSongsText}%0A%0A${tweetUrl}`;
+    const tweetText = `Check out the top billboard songs on my birthday!%0A%0A${cappedSongsText}%0A%0A${tweetUrl}`;
     const twitterUrl = `https://twitter.com/intent/tweet?text=${tweetText}`;
     window.open(twitterUrl, '_blank');
   };
